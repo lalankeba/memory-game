@@ -1,10 +1,11 @@
 import { Box, Container, Grid } from "@mui/material";
 import { useEffect, useState } from "react";
+import { Optionsbar } from "./Optionsbar";
 
 const imagesBasePath = '/images';
 const animalsBasePath = '/animals';
 const animalsPath = imagesBasePath + animalsBasePath + '/';
-const initImage = 'init.png';
+const initImage = 'init-light.png';
 const whiteImage = 'white.png';
 
 let selectedImgElements = [];
@@ -14,6 +15,10 @@ export const Home = () => {
 
   const [numberOfCards, setNumberOfCards] = useState(8);
   const [displayCards, setDisplayCards] = useState([]);
+  const [xsWidth, setXsWidth] = useState(1);
+  const [smWidth, setSmWidth] = useState(1);
+  const [mdWidth, setMdWidth] = useState(1);
+  const [lgWidth, setLgWidth] = useState(1);
 
   const uniqueAnimalCards = [
     {name: "pig", img: "pig.png", path: animalsPath},
@@ -88,26 +93,69 @@ export const Home = () => {
     const cardsWithIDs = doubledCards.concat(doubledCards).map((card, index) => {
         return {
             ...card,
-            id: index
+            id: index + Math.random()
         };
     });
     return shuffleCards(cardsWithIDs);
   };
 
   useEffect(() => {
+    refreshPage();
+    console.log('use effect ran');
+  }, [numberOfCards]);
+
+  const refreshPage = () => {
     const numberOfUniqueCards = numberOfCards / 2;
     setDisplayCards(getDisplayCards(uniqueAnimalCards, numberOfUniqueCards));
-    console.log('useEffect hook ran');
-  }, []);
+    adjustWidthValues();
+
+    waitingToFlip = false;
+    selectedImgElements = [];
+  }
+
+  const onNumOfCardsChanged = (numOfCards) => {
+    setNumberOfCards(numOfCards);
+  }
+
+  const adjustWidthValues = () => {
+    console.log('adjusting values');
+    if (numberOfCards === 8) {
+      setXsWidth(12/4); // 2 rows
+      setSmWidth(12/4); // 2 rows
+      setMdWidth(12/4); // 2 rows
+      setLgWidth(12/4); // 2 rows
+    } else if (numberOfCards === 12) {
+      setXsWidth(12/3); // 4 rows
+      setSmWidth(12/6); // 2 rows
+      setMdWidth(12/4); // 3 rows
+      setLgWidth(12/6); // 2 rows
+    } else if (numberOfCards === 16) {
+      setXsWidth(12/4); // 4 rows
+      setSmWidth(12/8); // 2 rows
+      setMdWidth(12/8); // 2 rows
+      setLgWidth(12/8); // 2 rows
+    } else if (numberOfCards === 20) {
+      setXsWidth(12/4); // 5 rows
+      setSmWidth(12/10); // 2 rows
+      setMdWidth(12/5); // 4 rows
+      setLgWidth(12/10); // 2 rows
+    } else if (numberOfCards === 24) {
+      setXsWidth(12/4); // 6 rows
+      setSmWidth(12/8); // 3 rows
+      setMdWidth(12/6); // 4 rows
+      setLgWidth(12/8); // 3 rows
+    }
+  }
 
   return (
     <>
+    <Optionsbar onNumOfCardsChanged={onNumOfCardsChanged} />
     <Box py={2} my={0}>
       <Container maxWidth="lg">
         <Box sx={{ flexGrow: 1, my: 1 }}>
           <Grid container spacing={1}>
             { displayCards.map((displayCard) => (
-              <Grid item key={displayCard.id} xs={4} sm={3} md={3} lg={3} p={1} >
+              <Grid item key={displayCard.id} xs={xsWidth} sm={smWidth} md={mdWidth} lg={lgWidth} p={1} >
                 <Box display="flex" justifyContent="center" alignItems="center"
                   height="100%" width="100%">
                   <img src={`${imagesBasePath}/${initImage}`} alt={displayCard.name} onClick={(e) => onCardClick(displayCard, e)}

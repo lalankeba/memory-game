@@ -1,9 +1,15 @@
-# React + Vite
+# Memory Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Simple memory game built with Javascript, React and MUI components.
 
-Currently, two official plugins are available:
+## Install
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-# memory-game
+```npm install```
+
+## Run Project
+
+```npm run dev```
+
+## Live Application
+
+You can visit [live demonstration](https://memory-game-lalanke.vercel.app/)

@@ -1,4 +1,4 @@
-import { Box, Container, Grid } from "@mui/material";
+import { Box, Container, Grid, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Optionsbar } from "./Optionsbar";
 
@@ -19,6 +19,9 @@ export const Home = () => {
   const [smWidth, setSmWidth] = useState(1);
   const [mdWidth, setMdWidth] = useState(1);
   const [lgWidth, setLgWidth] = useState(1);
+  const [isWon, setIsWon] = useState(false);
+  const [totalMatches, setTotalMatches] = useState(0);
+  const [totalClicks, setTotalClicks] = useState(0);
 
   const uniqueAnimalCards = [
     {name: "pig", img: "pig.png", path: animalsPath},
@@ -46,12 +49,12 @@ export const Home = () => {
       const imageElement = e.target;
 
       if (imageElement.getAttribute('data-clicked') === "no") {
-        console.log("not a clicked img");
         imageElement.setAttribute('data-clicked', "yes");
         imageElement.style.cursor = 'auto';
         imageElement.src = card.path + card.img;
 
         selectedImgElements.push(imageElement);
+        setTotalClicks((prevTotalClicks) => prevTotalClicks + 1);
 
         if (selectedImgElements.length === 2) {
           waitingToFlip = true;
@@ -62,6 +65,7 @@ export const Home = () => {
           let cursorStyle = 'auto';
           if (imgElement1.src === imgElement2.src) { // match found
             newImgSrc = imagesBasePath + '/' + whiteImage;
+            setTotalMatches((prevTotalMatches) => prevTotalMatches + 1);
           } else { // not a match
             newImgSrc = imagesBasePath + '/' + initImage;
             imgElement1.setAttribute('data-clicked', "no");
@@ -73,6 +77,16 @@ export const Home = () => {
         }
         
       }
+    }
+  }
+
+  useEffect(() => {
+    setWinningItems();
+  }, [totalMatches]);
+
+  const setWinningItems = () => {
+    if (totalMatches * 2 === numberOfCards) {
+      setIsWon(true);
     }
   }
 
@@ -101,7 +115,6 @@ export const Home = () => {
 
   useEffect(() => {
     refreshPage();
-    console.log('use effect ran');
   }, [numberOfCards]);
 
   const refreshPage = () => {
@@ -111,6 +124,9 @@ export const Home = () => {
 
     waitingToFlip = false;
     selectedImgElements = [];
+    setIsWon(false);
+    setTotalMatches(0);
+    setTotalClicks(0);
   }
 
   const onNumOfCardsChanged = (numOfCards) => {
@@ -118,7 +134,6 @@ export const Home = () => {
   }
 
   const adjustWidthValues = () => {
-    console.log('adjusting values');
     if (numberOfCards === 8) {
       setXsWidth(12/4); // 2 rows
       setSmWidth(12/4); // 2 rows
@@ -152,6 +167,13 @@ export const Home = () => {
     <Optionsbar onNumOfCardsChanged={onNumOfCardsChanged} />
     <Box py={2} my={0}>
       <Container maxWidth="lg">
+        { isWon ? 
+        <Box sx={{ my: 1 }} alignContent={"center"} alignItems={"center"} textAlign={"center"}>
+          <Typography variant="h1" gutterBottom>Congratulations !</Typography>
+          <Typography variant="h4" gutterBottom>You won</Typography>
+          <Typography variant="body1">Number of cards: {numberOfCards} Total Clicks: {totalClicks}</Typography>
+        </Box>
+        :
         <Box sx={{ flexGrow: 1, my: 1 }}>
           <Grid container spacing={1}>
             { displayCards.map((displayCard) => (
@@ -165,6 +187,7 @@ export const Home = () => {
             ))}
           </Grid>
         </Box>
+        }
       </Container>
     </Box>
     </>

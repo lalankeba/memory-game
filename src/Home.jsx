@@ -1,15 +1,16 @@
 import { Box, Container, Grid, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Optionsbar } from "./Optionsbar";
+import { useTheme } from "@emotion/react";
 
 const imagesBasePath = '/images';
 const animalsBasePath = '/animals';
 const animalsPath = imagesBasePath + animalsBasePath + '/';
-const initImage = 'init-light.png';
-const whiteImage = 'white.png';
+const initImage = 'init-dark.png';
 
 let selectedImgElements = [];
 let waitingToFlip = false;
+let matchedImgElements = []; // change the picture for already matched img elements, when theme changes
 
 export const Home = () => {
 
@@ -22,6 +23,10 @@ export const Home = () => {
   const [isWon, setIsWon] = useState(false);
   const [totalMatches, setTotalMatches] = useState(0);
   const [totalClicks, setTotalClicks] = useState(0);
+  const [accuracy, setAccuracy] = useState(0);
+  const [whiteImage, setWhiteImage] = useState('white.png');
+
+  const theme = useTheme();
 
   const uniqueAnimalCards = [
     {name: "pig", img: "pig.png", path: animalsPath},
@@ -66,6 +71,7 @@ export const Home = () => {
           if (imgElement1.src === imgElement2.src) { // match found
             newImgSrc = imagesBasePath + '/' + whiteImage;
             setTotalMatches((prevTotalMatches) => prevTotalMatches + 1);
+            matchedImgElements.push(imgElement1, imgElement2);
           } else { // not a match
             newImgSrc = imagesBasePath + '/' + initImage;
             imgElement1.setAttribute('data-clicked', "no");
@@ -73,7 +79,7 @@ export const Home = () => {
             cursorStyle = 'pointer';
           }
           selectedImgElements = [];
-          setTimeout(() => {resetElements(imgElement1, imgElement2, newImgSrc, cursorStyle)}, 600);
+          setTimeout(() => {resetElements(imgElement1, imgElement2, newImgSrc, cursorStyle)}, 800);
         }
         
       }
@@ -81,14 +87,22 @@ export const Home = () => {
   }
 
   useEffect(() => {
-    setWinningItems();
-  }, [totalMatches]);
+    const newImage = theme.palette.mode === 'light' ? 'white.png' : 'black.png';
+    setWhiteImage(newImage);
+  }, [theme]);
 
-  const setWinningItems = () => {
+  useEffect(() => {
+    matchedImgElements.map((imgElement) => {
+      imgElement.src = imagesBasePath + '/' + whiteImage;
+    });
+  }, [whiteImage]);
+
+  useEffect(() => {
     if (totalMatches * 2 === numberOfCards) {
+      setAccuracy(((numberOfCards / totalClicks) * 100).toFixed(2));
       setIsWon(true);
     }
-  }
+  }, [totalMatches]);
 
   const resetElements = (element1, element2, imgSrc, cursorStyle) => {
     element1.src = imgSrc;
@@ -127,6 +141,8 @@ export const Home = () => {
     setIsWon(false);
     setTotalMatches(0);
     setTotalClicks(0);
+    setAccuracy(0);
+    matchedImgElements = [];
   }
 
   const onNumOfCardsChanged = (numOfCards) => {
@@ -169,9 +185,10 @@ export const Home = () => {
       <Container maxWidth="lg">
         { isWon ? 
         <Box sx={{ my: 1 }} alignContent={"center"} alignItems={"center"} textAlign={"center"}>
-          <Typography variant="h1" gutterBottom>Congratulations !</Typography>
+          <Typography variant="h2" component="h1" gutterBottom>Congrats !</Typography>
           <Typography variant="h4" gutterBottom>You won</Typography>
           <Typography variant="body1">Number of cards: {numberOfCards} Total Clicks: {totalClicks}</Typography>
+          <Typography variant="body1">Accuracy {accuracy}%</Typography>
         </Box>
         :
         <Box sx={{ flexGrow: 1, my: 1 }}>

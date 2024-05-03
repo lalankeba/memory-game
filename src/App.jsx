@@ -21,14 +21,7 @@ function App() {
   const [theme, setTheme] = useState(lightTheme);
 
   const toggleTheme = () => {
-    console.log(theme);
     theme === lightTheme ? setTheme(darkTheme) : setTheme(lightTheme);
-  }
-
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    console.log('dark mode');
-  } else {
-    console.log('light mode');
   }
 
   return (
